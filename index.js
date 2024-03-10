@@ -16,6 +16,7 @@ db.connect();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
+<<<<<<< HEAD
 app.set("view engine", "ejs");
 
 let currentUserId = 1;
@@ -30,12 +31,18 @@ async function checkVisisted() {
     "SELECT country_code FROM visited_countries JOIN users ON users.id = user_id WHERE user_id = $1;",
     [currentUserId]
     );
+=======
+
+async function checkVisisted() {
+  const result = await db.query("SELECT country_code FROM visited_countries");
+>>>>>>> b9446a7302a3222b788c4bfbc72878ec88511e67
   let countries = [];
   result.rows.forEach((country) => {
     countries.push(country.country_code);
   });
   return countries;
 }
+<<<<<<< HEAD
 
 async function getCurrentUser(){
   const result = await db.query("SELECT * FROM users");
@@ -56,6 +63,17 @@ app.get("/", async (req, res) => {
 app.post("/add", async (req, res) => {
   const input = req.body["country"];
   const currentUser = await getCurrentUser();
+=======
+// GET home page
+app.get("/", async (req, res) => {
+  const countries = await checkVisisted();
+  res.render("index.ejs", { countries: countries, total: countries.length });
+});
+
+//INSERT new country
+app.post("/add", async (req, res) => {
+  const input = req.body["country"];
+>>>>>>> b9446a7302a3222b788c4bfbc72878ec88511e67
 
   try {
     const result = await db.query(
@@ -67,12 +85,18 @@ app.post("/add", async (req, res) => {
     const countryCode = data.country_code;
     try {
       await db.query(
+<<<<<<< HEAD
         "INSERT INTO visited_countries (country_code, user_id) VALUES ($1, $2)",
         [countryCode, currentUserId]
+=======
+        "INSERT INTO visited_countries (country_code) VALUES ($1)",
+        [countryCode]
+>>>>>>> b9446a7302a3222b788c4bfbc72878ec88511e67
       );
       res.redirect("/");
     } catch (err) {
       console.log(err);
+<<<<<<< HEAD
     }
   } catch (err) {
     console.log(err);
@@ -101,6 +125,25 @@ app.post("/new", async (req, res) => {
 
   res.redirect("/");
 });
+=======
+      const countries = await checkVisisted();
+      res.render("index.ejs", {
+        countries: countries,
+        total: countries.length,
+        error: "Country has already been added, try again.",
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    const countries = await checkVisisted();
+    res.render("index.ejs", {
+      countries: countries,
+      total: countries.length,
+      error: "Country name does not exist, try again.",
+    });
+  }
+});
+>>>>>>> b9446a7302a3222b788c4bfbc72878ec88511e67
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
